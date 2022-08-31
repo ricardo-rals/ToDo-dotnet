@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MeuToDo.Models;
 using MeuToDo.Data;
+using MeuToDo.ViewModels;
 
 namespace MeuToDo.Controllers
 {
@@ -37,5 +38,37 @@ namespace MeuToDo.Controllers
                 .FirstOrDefaultAsync( x => x.Id == id);
             return todo == null ? NotFound() : Ok(todo);
         }
+
+        [HttpPost("todos")]
+        public async Task<IActionResult> PostAsync(
+            [FromServices] AppDbContext context,
+            [FromBody] CreateTodoViewModel model
+        )
+        {
+            if(!ModelState.IsValid)
+                return BadRequest();
+
+            var todo = new Todo
+            {
+                Date = DateTime.Now,
+                Done = false,
+                Title = model.Title
+            };
+
+            try
+            {
+                await context.Todos.AddAsync(todo);
+                await context.SaveChangesAsync();
+                return Created($"v1/todos/{todo.Id}", todo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+
+        }
+        
     }
 }
