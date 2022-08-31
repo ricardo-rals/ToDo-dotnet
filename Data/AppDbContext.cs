@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-
+using MeuToDo.Models;
 namespace MeuToDo.Data;
 
 public class AppDbContext : DbContext
