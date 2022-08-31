@@ -67,8 +67,58 @@ namespace MeuToDo.Controllers
                 throw;
             }
             
+        }
 
+        [HttpPut("todos/{id}")]
+        public async Task<IActionResult> PutAsync(
+            [FromServices] AppDbContext context,
+            [FromBody] CreateTodoViewModel model,
+            [FromRoute] int id
+        )
+        {
+            if(!ModelState.IsValid)
+                return BadRequest();
+
+            var todo = await context.Todos.FirstOrDefaultAsync(x => x.Id == id);
+
+            if(todo == null)
+                return NotFound();
+
+            try
+            {
+                todo.Title = model.Title;
+
+                context.Todos.Update(todo);
+                await context.SaveChangesAsync();
+                return Ok(todo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
         
+        [HttpDelete("todos/{id}")]
+        public async Task<IActionResult> DeleteAsync(
+            [FromServices] AppDbContext context,
+            [FromRoute] int id
+        )
+        {
+            var todo = await context.Todos.FirstOrDefaultAsync(x => x.Id == id);
+
+            try
+            {
+                context.Todos.Remove(todo);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+            
+        }
     }
 }
